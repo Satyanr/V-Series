@@ -4,7 +4,7 @@
     <div class="container my-5">
         <div class="row">
             <div class="col">
-                    @livewire('admin.category')
+                    @livewire('admin.product')
             </div>
         </div>
     </div>

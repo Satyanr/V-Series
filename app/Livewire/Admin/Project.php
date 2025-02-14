@@ -14,10 +14,11 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class Project extends Component
 {
-    public $searchproject, $image, $title, $project_id, $description, $client;
+    public $searchproject, $image, $title, $project_id, $description, $client, $imageedit;
     use WithFileUploads;
     use LivewireAlert;
-    public $updateMode = false;
+    public $updateMode = false,
+        $listmode = true;
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
     protected $paginationName = 'ProjectPage';
@@ -50,13 +51,22 @@ class Project extends Component
         ]);
     }
 
+    public function liston()
+    {
+        $this->listmode = true;
+    }
+    public function listoff()
+    {
+        $this->listmode = false;
+    }
+
     public function store()
     {
         $this->validate([
             'title' => 'required',
             'description' => 'required',
             'client' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
         ]);
 
         $filename = time() . $this->image->getClientOriginalName();
@@ -91,7 +101,9 @@ class Project extends Component
         $this->title = $project->title;
         $this->description = $project->description;
         $this->client = $project->client;
+        $this->imageedit = $project->image;
         $this->updateMode = true;
+        $this->listoff();
     }
 
     public function update()
@@ -127,6 +139,7 @@ class Project extends Component
 
     public function cancel()
     {
+        $this->liston();
         $this->updateMode = false;
         $this->resetInput();
     }

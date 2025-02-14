@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->string('pixel_pitch')->nullable();
             $table->string('panel_dimension')->nullable();
+            $table->string('panel_resolution')->nullable();
             $table->string('module_dimension')->nullable();
             $table->string('module_resolution')->nullable();
             $table->string('brightness')->nullable();

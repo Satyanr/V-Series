@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Product as ProductModel;
@@ -11,9 +12,11 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class Product extends Component
 {
-    public $searchproduct, $image, $nama_product, $product_id, $description, $type, $pixel_pitch, $panel_dimension, $module_dimension, $module_resolution, $brightness, $refresh_rate, $color_temperatur, $viewing_angle, $power_consumption, $storage_temperature, $operation_temperature, $storage_humidity, $operation_humidity, $ip_rating;
+    public $searchproduct, $image, $nama_product, $panel_resolution, $product_id, $description, $type, $pixel_pitch, $panel_dimension, $module_dimension, $module_resolution, $brightness, $refresh_rate, $color_temperatur, $viewing_angle, $power_consumption, $storage_temperature, $operation_temperature, $storage_humidity, $operation_humidity, $ip_rating;
 
     public $updateMode = false;
+    public $listmode = true;
+    use WithFileUploads;
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
     protected $paginationName = 'ProductPage';
@@ -34,6 +37,7 @@ class Product extends Component
         $this->type = '';
         $this->pixel_pitch = '';
         $this->panel_dimension = '';
+        $this->panel_resolution = '';
         $this->module_dimension = '';
         $this->module_resolution = '';
         $this->brightness = '';
@@ -59,13 +63,22 @@ class Product extends Component
         ]);
     }
 
+    public function liston()
+    {
+        $this->listmode = true;
+    }
+    public function listoff()
+    {
+        $this->listmode = false;
+    }
+
     public function storeProduct()
     {
         $this->validate(
             [
                 'nama_product' => 'required',
                 'type' => 'required',
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
             ],
             [
                 'nama_product.required' => 'Nama kategori tidak boleh kosong',
@@ -73,20 +86,20 @@ class Product extends Component
                 'image.required' => 'Gambar tidak boleh kosong',
                 'image.image' => 'File yang diupload harus gambar',
                 'image.mimes' => 'Format gambar yang diupload harus jpeg, png, jpg, gif, svg',
-                'image.max' => 'Ukuran gambar yang diupload maksimal 2MB',
             ],
         );
         $filename = time() . $this->image->getClientOriginalName();
-        $destinationPath = 'public/tindakan_img';
+        $destinationPath = 'public/product';
 
         Storage::putFileAs($destinationPath, $this->image, $filename);
         ProductModel::create([
-            'image' => 'storage/tindakan_img/' . $filename,
+            'image' => 'storage/product/' . $filename,
             'name' => $this->nama_product,
             'type' => $this->type,
             'description' => $this->description,
             'pixel_pitch' => $this->pixel_pitch,
             'panel_dimension' => $this->panel_dimension,
+            'panel_resolution' => $this->panel_resolution,
             'module_dimension' => $this->module_dimension,
             'module_resolution' => $this->module_resolution,
             'brightness' => $this->brightness,
@@ -102,6 +115,7 @@ class Product extends Component
         ]);
         session()->flash('message', 'Product berhasil ditambahkan');
         $this->resetInput();
+        $this->liston();
     }
 
     public function edit($id)
@@ -119,6 +133,7 @@ class Product extends Component
         $this->description = $product->description;
         $this->pixel_pitch = $product->pixel_pitch;
         $this->panel_dimension = $product->panel_dimension;
+        $this->panel_resolution = $product->panel_resolution;
         $this->module_dimension = $product->module_dimension;
         $this->module_resolution = $product->module_resolution;
         $this->brightness = $product->brightness;
@@ -147,6 +162,7 @@ class Product extends Component
             'description' => $this->description,
             'pixel_pitch' => $this->pixel_pitch,
             'panel_dimension' => $this->panel_dimension,
+            'panel_resolution' => $this->panel_resolution,
             'module_dimension' => $this->module_dimension,
             'module_resolution' => $this->module_resolution,
             'brightness' => $this->brightness,
@@ -167,6 +183,7 @@ class Product extends Component
     }
     public function cancel()
     {
+        $this->liston();
         $this->updateMode = false;
         $this->resetInput();
     }
